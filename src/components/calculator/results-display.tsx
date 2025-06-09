@@ -18,7 +18,7 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results }) => {
     { icon: <Smartphone className="w-5 h-5 text-primary" />, label: "画布宽度", value: `${results.canvasWidth} px` },
     { icon: <Ruler className="w-5 h-5 text-primary" />, label: "画布高度", value: `${results.canvasHeight} px` },
     { icon: <ImageIcon className="w-5 h-5 text-primary" />, label: "切图倍数", value: `${results.assetExportScale}x` },
-    { icon: <TextCursorInput className="w-5 h-5 text-primary" />, label: "小字建议", value: `${results.suggestedFontSize}px (${results.fontExportScaleText})` },
+    { icon: <TextCursorInput className="w-5 h-5 text-primary" />, label: "小字建议字号", value: `${results.suggestedFontSize}px (${results.fontExportScaleText})` },
   ];
 
   return (

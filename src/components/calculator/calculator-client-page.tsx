@@ -60,8 +60,26 @@ const CalculatorClientPage: React.FC = () => {
       </main>
 
       <footer className="w-full max-w-4xl mt-12 text-center text-muted-foreground text-sm">
-        <p>&copy; {new Date().getFullYear()} CanvasAlchemist. 为设计师打造的实用工具。</p>
-        <p className="mt-1">灵感来源于解决UI设计师面对不同屏幕尺寸时的困惑。</p>
+        <p>
+          Created by{' '}
+          <Link 
+            href="https://victor42.eth.limo/page/tools/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            Victor_42
+          </Link>
+          {' | '}
+          <Link 
+            href="https://github.com/greenzorro/ui-canvas-size-calculator" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            Code
+          </Link>
+        </p>
       </footer>
     </div>
   );

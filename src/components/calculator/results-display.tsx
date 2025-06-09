@@ -52,7 +52,6 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results }) => {
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">屏幕PPI: <span className="font-semibold text-foreground">{results.ppi}</span></p>
             <p className="text-sm text-muted-foreground">屏幕倍数: <span className="font-semibold text-foreground">{results.screenScalingFactor}x</span></p>
-            <p className="text-sm text-muted-foreground">实际设计稿倍数: <span className="font-semibold text-foreground">{results.actualDesignMultiplier}x</span></p>
           </CardContent>
         </Card>
       </CardContent>

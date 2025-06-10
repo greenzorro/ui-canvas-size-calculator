@@ -44,13 +44,20 @@ const CalculatorClientPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col p-4 md:p-8 font-body">
-      <header className="w-full max-w-7xl mx-auto mb-8 flex justify-between items-center">
-        <h1 className="text-3xl md:text-4xl font-headline font-bold text-primary">
-          {t('title')}
-        </h1>
-        <div className="flex items-center space-x-2">
-          <LanguageToggle />
-          <ThemeToggle />
+      <header className="w-full max-w-7xl mx-auto mb-8">
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-headline font-bold text-primary">
+              {t('title')}
+            </h1>
+            <p className="text-muted-foreground text-sm md:text-base mt-2">
+              {t('subtitle')}
+            </p>
+          </div>
+          <div className="flex items-center space-x-2">
+            <LanguageToggle />
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 

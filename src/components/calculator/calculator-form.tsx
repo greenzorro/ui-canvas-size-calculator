@@ -1,12 +1,10 @@
 "use client";
 
-import React from 'react';
+import React, { useRef, useCallback } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -26,26 +24,26 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import type { CalculatorFormInput } from '@/types';
 import { VIEWING_DISTANCE_OPTIONS, PREFERRED_CANVAS_WIDTH_OPTIONS, type ViewingDistance, type PreferredCanvasWidth } from '@/lib/constants';
-import { ArrowLeftRight, ArrowUpDown, Settings2, Eye, Palette, Calculator } from 'lucide-react';
-
-const formSchema = z.object({
-  pixelWidth: z.coerce.number().positive({ message: "宽度必须大于0" }).int({ message: "宽度必须是整数" }),
-  pixelHeight: z.coerce.number().positive({ message: "高度必须大于0" }).int({ message: "高度必须是整数" }),
-  diagonalSize: z.coerce.number().positive({ message: "尺寸必须大于0" }),
-  viewingDistance: z.enum(VIEWING_DISTANCE_OPTIONS.map(opt => opt.value) as [ViewingDistance, ...ViewingDistance[]], {
-    errorMap: () => ({ message: "请选择使用距离" }),
-  }),
-  preferredCanvasWidth: z.enum(PREFERRED_CANVAS_WIDTH_OPTIONS.map(opt => opt.value) as [PreferredCanvasWidth, ...PreferredCanvasWidth[]], {
-    errorMap: () => ({ message: "请选择习惯宽度" }),
-  }),
-});
-
-interface CalculatorFormProps {
-  onSubmit: (data: CalculatorFormInput) => void;
-  initialValues?: Partial<CalculatorFormInput>;
-}
+import { ArrowLeftRight, ArrowUpDown, Settings2, Eye, Palette } from 'lucide-react';
+import { useLanguage } from '@/components/providers/language-provider';
 
 const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, initialValues }) => {
+  const { t } = useLanguage();
+  const debounceRef = useRef<NodeJS.Timeout>();
+  const isInitializedRef = useRef(false);
+
+  const formSchema = z.object({
+    pixelWidth: z.coerce.number().positive({ message: t("screenWidthLabel") + "必须大于0" }).int({ message: t("screenWidthLabel") + "必须是整数" }),
+    pixelHeight: z.coerce.number().positive({ message: t("screenHeightLabel") + "必须大于0" }).int({ message: t("screenHeightLabel") + "必须是整数" }),
+    diagonalSize: z.coerce.number().positive({ message: t("screenSizeLabel") + "必须大于0" }),
+    viewingDistance: z.enum(VIEWING_DISTANCE_OPTIONS.map(opt => opt.value) as [ViewingDistance, ...ViewingDistance[]], {
+      errorMap: () => ({ message: "请选择" + t("usageDistanceLabel") }),
+    }),
+    preferredCanvasWidth: z.enum(PREFERRED_CANVAS_WIDTH_OPTIONS.map(opt => opt.value) as [PreferredCanvasWidth, ...PreferredCanvasWidth[]], {
+      errorMap: () => ({ message: "请选择" + t("designWidthLabel") }),
+    }),
+  });
+
   const form = useForm<CalculatorFormInput>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -55,38 +53,66 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, initialValues
       viewingDistance: initialValues?.viewingDistance || 'medium',
       preferredCanvasWidth: initialValues?.preferredCanvasWidth || '375',
     },
-    mode: 'onChange', // Recalculate on change
+    mode: 'onChange',
   });
 
   const handleFormSubmit: SubmitHandler<CalculatorFormInput> = (data) => {
     onSubmit(data);
   };
 
-  React.useEffect(() => {
-    const subscription = form.watch((values) => {
-      // Check if form is valid before submitting automatically
-      form.trigger().then(isValid => {
-        if (isValid) {
-          onSubmit(values as CalculatorFormInput);
-        }
-      });
-    });
-    // Initial calculation with default values
-    form.trigger().then(isValid => {
-        if (isValid) {
-          onSubmit(form.getValues() as CalculatorFormInput);
-        }
-      });
-    return () => subscription.unsubscribe();
-  }, [form, onSubmit]);
+  // 防抖提交函数
+  const debouncedSubmit = useCallback((values: CalculatorFormInput) => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    
+    debounceRef.current = setTimeout(() => {
+      onSubmit(values);
+    }, 300);
+  }, [onSubmit]);
 
+  // 当表单值变化时触发计算
+  React.useEffect(() => {
+    const subscription = form.watch(() => {
+      const currentValues = form.getValues();
+      
+      // 检查所有必需字段是否有效
+      const isValid = currentValues.pixelWidth > 0 && 
+                     currentValues.pixelHeight > 0 && 
+                     currentValues.diagonalSize > 0 && 
+                     currentValues.viewingDistance && 
+                     currentValues.preferredCanvasWidth;
+
+      if (isValid) {
+        if (!isInitializedRef.current) {
+          // 首次加载时立即计算
+          isInitializedRef.current = true;
+          onSubmit(currentValues);
+        } else {
+          // 后续变化使用防抖
+          debouncedSubmit(currentValues);
+        }
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [debouncedSubmit, onSubmit, form]);
+
+  // 清理定时器
+  React.useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, []);
 
   return (
     <Card className="w-full shadow-xl">
       <CardHeader>
-        <CardTitle className="text-2xl font-headline text-center">输入参数</CardTitle>
+        <CardTitle className="text-2xl font-headline text-center">{t('formTitle')}</CardTitle>
         <CardDescription className="text-center">
-          请填写屏幕信息和您的设计偏好。
+          {t('formDescription')}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -98,7 +124,7 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, initialValues
                 name="pixelWidth"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center"><ArrowLeftRight className="w-4 h-4 mr-2 text-primary" />屏幕像素宽度</FormLabel>
+                    <FormLabel className="flex items-center"><ArrowLeftRight className="w-4 h-4 mr-2 text-primary" />{t('screenWidthLabel')}</FormLabel>
                     <FormControl>
                       <Input type="number" placeholder="例如: 1920" {...field} />
                     </FormControl>
@@ -111,7 +137,7 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, initialValues
                 name="pixelHeight"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center"><ArrowUpDown className="w-4 h-4 mr-2 text-primary" />屏幕像素高度</FormLabel>
+                    <FormLabel className="flex items-center"><ArrowUpDown className="w-4 h-4 mr-2 text-primary" />{t('screenHeightLabel')}</FormLabel>
                     <FormControl>
                       <Input type="number" placeholder="例如: 1080" {...field} />
                     </FormControl>
@@ -125,11 +151,11 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, initialValues
               name="diagonalSize"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center"><Settings2 className="w-4 h-4 mr-2 text-primary" />屏幕尺寸 (英寸)</FormLabel>
+                  <FormLabel className="flex items-center"><Settings2 className="w-4 h-4 mr-2 text-primary" />{t('screenSizeLabel')}</FormLabel>
                   <FormControl>
                     <Input type="number" step="0.1" placeholder="例如: 27" {...field} />
                   </FormControl>
-                  <FormDescription>屏幕对角线长度，单位为英寸。</FormDescription>
+                  <FormDescription>{t('screenSizeDescription')}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -139,17 +165,17 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, initialValues
               name="viewingDistance"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center"><Eye className="w-4 h-4 mr-2 text-primary" />屏幕使用距离</FormLabel>
+                  <FormLabel className="flex items-center"><Eye className="w-4 h-4 mr-2 text-primary" />{t('usageDistanceLabel')}</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="选择使用距离" />
+                        <SelectValue placeholder={t('usageDistanceLabel')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {VIEWING_DISTANCE_OPTIONS.map(option => (
                         <SelectItem key={option.value} value={option.value}>
-                          {option.label}
+                          {t(`usageDistances.${option.value}`)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -163,37 +189,36 @@ const CalculatorForm: React.FC<CalculatorFormProps> = ({ onSubmit, initialValues
               name="preferredCanvasWidth"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center"><Palette className="w-4 h-4 mr-2 text-primary" />习惯的设计稿宽度</FormLabel>
+                  <FormLabel className="flex items-center"><Palette className="w-4 h-4 mr-2 text-primary" />{t('designWidthLabel')}</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="选择习惯宽度" />
+                        <SelectValue placeholder={t('designWidthLabel')} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {PREFERRED_CANVAS_WIDTH_OPTIONS.map(option => (
                         <SelectItem key={option.value} value={option.value}>
-                          {option.label}
+                          {`${option.value}px (${option.multiplier}${t('timesUnit')})`}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormDescription>您通常在哪种倍数的画布上设计App界面。</FormDescription>
+                  <FormDescription>{t('designWidthDescription')}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            {/* The form submits on change, so explicit button is not strictly needed for calculation */}
-            {/* but can be kept for accessibility or as a clear user action. */}
-            {/* <Button type="submit" className="w-full font-semibold">
-              <Calculator className="w-4 h-4 mr-2" />
-              计算
-            </Button> */}
           </form>
         </Form>
       </CardContent>
     </Card>
   );
 };
+
+interface CalculatorFormProps {
+  onSubmit: (data: CalculatorFormInput) => void;
+  initialValues?: Partial<CalculatorFormInput>;
+}
 
 export default CalculatorForm;

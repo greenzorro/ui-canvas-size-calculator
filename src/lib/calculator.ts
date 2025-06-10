@@ -47,16 +47,14 @@ export function calculateAll(inputs: CalculatorFormInput): CalculationResults | 
 
   // 小字建议字号 = 基础字号 × 实际设计稿倍数
   const suggestedFontSize = BASE_FONT_SIZE * actualDesignMultiplier;
-  const fontExportScaleText = `${actualDesignMultiplier}倍`;
 
   return {
-    ppi: parseFloat(ppi.toFixed(2)),
+    ppi: Math.round(ppi),
     screenScalingFactor,
     actualDesignMultiplier,
     canvasWidth,
     canvasHeight,
     assetExportScale,
     suggestedFontSize,
-    fontExportScaleText,
   };
 }

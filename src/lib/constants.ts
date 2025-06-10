@@ -13,9 +13,9 @@ export const VIEWING_DISTANCE_DIVISORS: Record<ViewingDistance, number> = {
 };
 
 export const PREFERRED_CANVAS_WIDTH_OPTIONS = [
-  { label: "375px (1倍)", value: "375" },
-  { label: "750px (2倍)", value: "750" },
-  { label: "1125px (3倍)", value: "1125" },
+  { label: "375px (1x)", value: "375", multiplier: 1 },
+  { label: "750px (2x)", value: "750", multiplier: 2 },
+  { label: "1125px (3x)", value: "1125", multiplier: 3 },
 ] as const;
 
 export type PreferredCanvasWidth = typeof PREFERRED_CANVAS_WIDTH_OPTIONS[number]["value"];

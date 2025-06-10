@@ -18,13 +18,24 @@ const CanvasVisualizer: React.FC<CanvasVisualizerProps> = ({ canvasWidth, canvas
 
   const aspectRatio = canvasWidth / canvasHeight;
   const containerMaxWidth = 320; // Max width for the visualizer in pixels
+  const containerMaxHeight = 320; // Max height for the visualizer in pixels
+  const padding = 20; // Padding for text
+  const availableWidth = containerMaxWidth - padding * 2; // 减掉左右padding
+  const availableHeight = containerMaxHeight - padding * 2; // 减掉上下padding
   
-  let svgWidth = containerMaxWidth;
-  let svgHeight = containerMaxWidth / aspectRatio;
+  let svgWidth = availableWidth;
+  let svgHeight = availableWidth / aspectRatio;
 
-  if (svgHeight > containerMaxWidth * 0.75) { // Limit height to prevent very tall displays
-    svgHeight = containerMaxWidth * 0.75;
+  // 确保高度不超过可用高度
+  if (svgHeight > availableHeight) {
+    svgHeight = availableHeight;
     svgWidth = svgHeight * aspectRatio;
+  }
+  
+  // 确保宽度不超过可用宽度（双重保护）
+  if (svgWidth > availableWidth) {
+    svgWidth = availableWidth;
+    svgHeight = svgWidth / aspectRatio;
   }
   
   if (svgWidth <=0 || svgHeight <=0) {
@@ -36,15 +47,16 @@ const CanvasVisualizer: React.FC<CanvasVisualizerProps> = ({ canvasWidth, canvas
   }
 
   const strokeWidth = 2;
-  const padding = 20; // Padding for text
-  const textFontSize = Math.min(12, svgWidth / 20, svgHeight / 15);
+  const textFontSize = Math.max(10, Math.min(14, svgWidth / 15, svgHeight / 10));
 
 
   return (
-    <div className="w-full p-4 border rounded-lg shadow-inner bg-secondary/30" style={{ maxWidth: `${containerMaxWidth + padding*2}px`, margin: '0 auto' }}>
+    <div className="w-full p-4 border rounded-lg shadow-inner bg-secondary/30" style={{ maxWidth: `${containerMaxWidth + padding*2}px`, maxHeight: `${containerMaxHeight + padding*2}px`, margin: '0 auto' }}>
       <svg 
         viewBox={`-${padding} -${padding} ${svgWidth + padding*2} ${svgHeight + padding*2}`}
-        width="100%"
+        width={svgWidth + padding*2}
+        height={svgHeight + padding*2}
+        style={{ maxWidth: '100%', maxHeight: '100%', display: 'block', margin: '0 auto' }}
         preserveAspectRatio="xMidYMid meet"
         aria-label={`屏幕示意图：宽 ${canvasWidth}px, 高 ${canvasHeight}px`}
       >

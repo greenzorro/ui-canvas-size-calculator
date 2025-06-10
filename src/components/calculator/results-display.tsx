@@ -4,29 +4,32 @@ import type { CalculationResults } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import CanvasVisualizer from './canvas-visualizer';
 import { Ruler, Smartphone, TextCursorInput, Image as ImageIcon } from 'lucide-react';
+import { useLanguage } from '@/components/providers/language-provider';
 
 interface ResultsDisplayProps {
   results: CalculationResults | null;
 }
 
 const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results }) => {
+  const { t } = useLanguage();
+  
   if (!results) {
     return null;
   }
 
   const resultItems = [
-    { icon: <Smartphone className="w-5 h-5 text-primary" />, label: "画布宽度", value: `${results.canvasWidth} px` },
-    { icon: <Ruler className="w-5 h-5 text-primary" />, label: "画布高度", value: `${results.canvasHeight} px` },
-    { icon: <ImageIcon className="w-5 h-5 text-primary" />, label: "切图倍数", value: `${results.assetExportScale}x` },
-    { icon: <TextCursorInput className="w-5 h-5 text-primary" />, label: "小字建议字号", value: `${results.suggestedFontSize}px (${results.fontExportScaleText})` },
+    { icon: <Smartphone className="w-5 h-5 text-primary" />, label: t('canvasWidthLabel'), value: `${results.canvasWidth} px` },
+    { icon: <Ruler className="w-5 h-5 text-primary" />, label: t('calculatedHeightLabel'), value: `${results.canvasHeight} px` },
+    { icon: <ImageIcon className="w-5 h-5 text-primary" />, label: t('assetExportLabel'), value: `${results.assetExportScale}${t('timesUnit')}` },
+    { icon: <TextCursorInput className="w-5 h-5 text-primary" />, label: t('fontSizeLabel'), value: `${results.suggestedFontSize}px (${results.actualDesignMultiplier}${t('timesUnit')})` },
   ];
 
   return (
     <Card className="w-full shadow-xl">
       <CardHeader>
-        <CardTitle className="text-2xl font-headline text-center">计算结果</CardTitle>
+        <CardTitle className="text-2xl font-headline text-center">{t('result')}</CardTitle>
         <CardDescription className="text-center">
-          根据您的输入，建议的设计参数如下：
+          {t('resultDescription')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -50,8 +53,8 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results }) => {
 
         <Card className="mt-4 bg-secondary/50">
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">屏幕PPI: <span className="font-semibold text-foreground">{results.ppi}</span></p>
-            <p className="text-sm text-muted-foreground">屏幕倍数: <span className="font-semibold text-foreground">{results.screenScalingFactor}x</span></p>
+            <p className="text-sm text-muted-foreground">{t('screenPPILabel')}: <span className="font-semibold text-foreground">{results.ppi}</span></p>
+            <p className="text-sm text-muted-foreground">{t('screenMultiplierLabel')}: <span className="font-semibold text-foreground">{results.screenScalingFactor}{t('timesUnit')}</span></p>
           </CardContent>
         </Card>
       </CardContent>

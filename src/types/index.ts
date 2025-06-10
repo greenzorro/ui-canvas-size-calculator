@@ -16,5 +16,4 @@ export interface CalculationResults {
   canvasHeight: number;
   assetExportScale: number;
   suggestedFontSize: number;
-  fontExportScaleText: string;
 }

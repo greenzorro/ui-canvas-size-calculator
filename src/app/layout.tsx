@@ -51,6 +51,18 @@ export default function RootLayout({
         <meta name="format-detection" content="telephone=no" />
         <meta name="msapplication-TileColor" content="#ffffff" />
         <meta name="theme-color" content="#ffffff" />
+        {/* Google tag (gtag.js) */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-4ZRLWZBMB0"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-4ZRLWZBMB0');
+            `,
+          }}
+        />
       </head>
       <body className="font-body antialiased min-h-screen bg-background text-foreground">
         <LanguageProvider>

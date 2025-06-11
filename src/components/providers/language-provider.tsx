@@ -6,7 +6,7 @@ import React, { createContext, useContext, useState, useEffect } from "react"
 const translations = {
   zh: {
     title: "UI画布尺寸计算器",
-    subtitle: "面对陌生的设备，帮你解决\"画布该设成多大\"的问题。",
+    subtitle: "面对陌生的设备，帮你解决“画布该设成多大”的问题。",
     description: "根据屏幕信息计算UI设计画布尺寸",
     formTitle: "输入参数",
     formDescription: "请填写屏幕信息和您的设计偏好。",

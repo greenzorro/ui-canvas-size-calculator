@@ -94,7 +94,7 @@ const CalculatorClientPage: React.FC = () => {
         <p>
           Created by{' '}
           <Link 
-            href="https://victor42.eth.limo/page/tools/" 
+            href="https://victor42.work/" 
             target="_blank" 
             rel="noopener noreferrer"
             className="text-primary hover:underline"

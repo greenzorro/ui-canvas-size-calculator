@@ -52,14 +52,14 @@ export default function RootLayout({
         <meta name="msapplication-TileColor" content="#ffffff" />
         <meta name="theme-color" content="#ffffff" />
         {/* Google tag (gtag.js) */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-4ZRLWZBMB0"></script>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-14SGRFWENB"></script>
         <script
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
-              gtag('config', 'G-4ZRLWZBMB0');
+              gtag('config', 'G-14SGRFWENB');
             `,
           }}
         />
